@@ -140,23 +140,23 @@ async function callSubmit(
 
 // ---------- Library / version history (read-only GETs) ----------
 
-async function fetchPlaybooks(includeVault: boolean): Promise<PlaybookSummary[]> {
+async function fetchPlaybooks(includeVault: boolean, token: string): Promise<PlaybookSummary[]> {
   const qs = includeVault ? "" : "?vault=exclude";
-  const r = await fetch(`/api/playbooks${qs}`);
+  const r = await fetch(`/api/playbooks${qs}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!r.ok) throw new Error(`/api/playbooks ${r.status}: ${await r.text()}`);
   const json = (await r.json()) as PlaybooksListResponse;
   return json.playbooks;
 }
 
-async function fetchPlaybook(id: number): Promise<PlaybookRow> {
-  const r = await fetch(`/api/playbooks/${id}`);
+async function fetchPlaybook(id: number, token: string): Promise<PlaybookRow> {
+  const r = await fetch(`/api/playbooks/${id}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!r.ok) throw new Error(`/api/playbooks/${id} ${r.status}: ${await r.text()}`);
   const json = (await r.json()) as PlaybookDetailResponse;
   return json.playbook;
 }
 
-async function fetchFamilyVersions(familyId: string): Promise<FamilyVersionEntry[]> {
-  const r = await fetch(`/api/playbooks/family/${encodeURIComponent(familyId)}`);
+async function fetchFamilyVersions(familyId: string, token: string): Promise<FamilyVersionEntry[]> {
+  const r = await fetch(`/api/playbooks/family/${encodeURIComponent(familyId)}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!r.ok) {
     throw new Error(`/api/playbooks/family/${familyId} ${r.status}: ${await r.text()}`);
   }

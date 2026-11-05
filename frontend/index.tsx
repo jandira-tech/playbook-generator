@@ -57,6 +57,8 @@ function App() {
   const [session, setSession] = useState<ClientSession>(() => loadSession());
   // "My playbooks" library is a self-contained overlay, not a persisted stage.
   const [libraryOpen, setLibraryOpen] = useState(false);
+  // Access token stays only in component memory; it is never persisted with drafts.
+  const [libraryToken, setLibraryToken] = useState("");
   // Counterparty-review overlay: a saved playbook whose rules we check a draft
   // against. Held transiently (not persisted) — it is a review tool, not a draft.
   const [counterRecord, setCounterRecord] = useState<PlaybookRecord | null>(null);
@@ -211,6 +213,8 @@ function App() {
   if (libraryOpen) {
     return (
       <LibraryScreen
+        token={libraryToken}
+        onTokenChange={setLibraryToken}
         onClose={() => setLibraryOpen(false)}
         onDuplicate={onDuplicate}
         onReviewCounter={(record) => setCounterRecord(record)}

@@ -1,21 +1,25 @@
-# Design tokens and conventions
+# Playbook design tokens
 
-Extracted from the cloned UI, primarily `frontend/index.html`, `frontend/ui.tsx`, and the step components. These describe the existing appearance; utility colors are supplied by Twind's Tailwind-style palette, not a separate CSS token file.
+Adapted from `Contracts Playbook - Demo.html`, `demos/shared.css`, and
+`colors_and_type.css` in the supplied Arthur Souza Rodrigues design archive.
+The archive is a static mock with canned responses; this project retains its
+model-backed workflow, not the mock's simulated actions or example output.
 
-| Role | Source value |
+| Token | Value / use |
 | --- | --- |
-| Page background | vertical gradient `#f7f4ef` → `#eef2f7` |
-| Surface | white; slate-50 for secondary panels |
-| Primary text / action | slate-900, action hover slate-800, action text white |
-| Secondary text | slate-500 to slate-700 |
-| Borders | slate-200 / slate-300 |
-| Selection / information | indigo-50 through indigo-900; sky for informational panels |
-| Risk / status | emerald (positive), amber (caution), rose (negative) |
-| Font | `ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif`; monospace for agreement text and clause excerpts |
-| Heading | 3xl semibold with tight tracking for the page title; 2xl / xl for sections |
-| Labels | 10–12 px, semibold, uppercase, wide tracking |
-| Page width / spacing | `max-w-3xl` (48rem), horizontal padding 1rem, vertical padding 2rem |
-| Cards | white, slate-200 border, small shadow, `rounded-lg`, 1.5rem padding; 2rem at `sm` |
-| Controls | small rounded corners; primary button slate-900 with white uppercase label; chips use full rounding |
+| Paper | `#FAFAF8` page background |
+| Ink | `#0A0A0A` text, primary buttons, structural borders |
+| Surface | `#FFFFFF` cards |
+| Muted | `#6B6B6B` labels |
+| Faint | `#E8E8E5` separators |
+| Highlighter | `#FFD400` headline marker, focus shadow and accents |
+| Body and display | Libre Franklin, with a system sans fallback |
+| Labels and controls | Roboto Mono, with a system monospace fallback |
+| Geometry | Square corners, one-pixel ink borders, no soft shadows |
+| Content | 860px maximum flow width; responsive gutters |
+| Motion | Subtle control movement; respects reduced-motion preference |
 
-Components also use responsive utility classes. Color names represent Twind utility tokens and may depend on the remote CDN implementation.
+The font CSS loads from Google Fonts because Val Town projects store text files;
+font fallbacks keep the app usable if the font service is unavailable. Existing
+risk, validation and status colors are retained to preserve their meanings.
+The implementation lives in `frontend/design.css` and the shared React shell.

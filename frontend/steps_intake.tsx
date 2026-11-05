@@ -65,8 +65,9 @@ function IntentStep({
               key={o.id}
               type="button"
               onClick={() => setIntent(o.id)}
+              aria-pressed={active}
               className={
-                "w-full text-left rounded-lg border px-4 py-3 transition " +
+                "intent-choice w-full text-left rounded-lg border px-4 py-3 transition " +
                 (active
                   ? "border-slate-900 bg-slate-900 text-white"
                   : "border-slate-200 bg-white hover:border-slate-400")

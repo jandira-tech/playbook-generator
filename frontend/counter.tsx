@@ -97,7 +97,7 @@ function CounterReviewScreen({
   }
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8" data-testid="counter-screen">
+    <div className="playbook-theme max-w-3xl mx-auto px-4 py-8" data-testid="counter-screen">
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 mb-1">

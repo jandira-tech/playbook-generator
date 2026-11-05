@@ -1,0 +1,63 @@
+/* Design tokens adapted from Contracts Playbook - Demo.html in the design archive. */
+:root {
+  color-scheme: light;
+  --paper: #fafaf8;
+  --ink: #0a0a0a;
+  --muted: #6b6b6b;
+  --faint: #e8e8e5;
+  --surface: #fff;
+  --mark: #ffd400;
+  --body-font: "Libre Franklin", system-ui, sans-serif;
+  --mono-font: "Roboto Mono", ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body-font); -webkit-font-smoothing: antialiased; }
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--ink); outline-offset: 2px;
+}
+.app-header { border-bottom: 1px solid var(--faint); background: var(--paper); }
+.app-header-inner { max-width: 1180px; padding: 0 clamp(20px, 5vw, 56px); min-height: 60px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.app-brand, .app-reset, .app-eyebrow, .app-progress { font-family: var(--mono-font); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.app-brand { font-size: 12px; overflow-wrap: anywhere; }
+.app-brand span { color: var(--muted); }
+.app-brand b { color: var(--muted); font-weight: 600; }
+.app-reset { border: 0; background: transparent; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.app-reset:hover { color: var(--ink); text-decoration: underline; text-decoration-color: var(--mark); text-decoration-thickness: 3px; }
+.app-content { width: min(100% - 40px, 860px); margin: 0 auto; padding: 34px 0 56px; }
+.app-hero { padding: 0 0 24px; }
+.app-eyebrow { margin: 0 0 20px; color: var(--muted); font-size: 11px; line-height: 1.65; }
+.app-eyebrow span { padding: 0 6px; opacity: .5; }
+.app-hero h1 { margin: 0 0 20px; font-size: clamp(30px, 4.4vw, 50px); line-height: 1.05; font-weight: 700; letter-spacing: -.025em; }
+.app-hero h1 mark { color: var(--ink); background: linear-gradient(transparent 19%, var(--mark) 19%, var(--mark) 92%, transparent 92%); padding: 0 .1em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.app-hero > p:last-child { margin: 0; max-width: 60ch; font-size: clamp(16px, 1.5vw, 18px); line-height: 1.6; color: #2a2a2a; }
+.app-progress { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1px; background: var(--ink); border: 1px solid var(--ink); margin-bottom: 18px; font-size: 10px; }
+.app-progress > span { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: var(--surface); color: var(--muted); }
+.app-progress > .is-active { background: var(--ink); color: var(--paper); }
+.app-progress > .is-active b { color: var(--mark); }
+.app-progress > .is-done { background: var(--paper); color: var(--ink); }
+.app-progress > .is-done b { background: var(--mark); padding: 0 4px; }
+.playbook-theme .demo-card { background: var(--surface); border: 1px solid var(--ink); border-radius: 0; box-shadow: none; padding: clamp(20px, 3vw, 32px); }
+.playbook-theme .demo-card h2 { font-size: clamp(22px, 2.6vw, 30px); font-weight: 700; letter-spacing: -.025em; line-height: 1.1; }
+.playbook-theme .demo-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--ink); border-radius: 0; padding: 13px 20px; font-family: var(--mono-font); font-size: 11px; font-weight: 600; letter-spacing: .05em; color: var(--ink); background: var(--surface); text-transform: uppercase; transition: background .18s ease, transform .18s ease; }
+.playbook-theme .demo-button-primary { background: var(--ink); color: var(--paper); }
+.playbook-theme .demo-button:not(:disabled):hover { background: var(--mark); color: var(--ink); transform: translateY(-2px); }
+.playbook-theme .demo-button:disabled { opacity: .4; }
+.playbook-theme .intent-choice { border: 1px solid var(--ink); background: var(--surface); color: var(--ink); }
+.playbook-theme .intent-choice[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+.playbook-theme .intent-choice:not([aria-pressed="true"]):hover { background: var(--mark); }
+.playbook-theme .demo-chip { border: 1px solid var(--ink); border-radius: 0; font-family: var(--mono-font); font-size: 11px; }
+.playbook-theme .demo-card input:not([type=checkbox]):not([type=radio]):not([type=file]),
+.playbook-theme .demo-card textarea, .playbook-theme .demo-card select { border: 1px solid var(--ink); border-radius: 0; }
+.playbook-theme .demo-card input:focus, .playbook-theme .demo-card textarea:focus, .playbook-theme .demo-card select:focus { outline: 0; box-shadow: 4px 4px 0 var(--mark); }
+/* Existing controls keep their semantic colors while adopting the square geometry. */
+.playbook-theme :where(*) { border-radius: 0 !important; }
+@media (max-width: 640px) {
+  .app-content { padding-top: 26px; }
+  .app-progress > span { justify-content: center; padding: 9px 4px; }
+  .app-progress > span > span { display: none; }
+  .app-brand { font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { .playbook-theme .demo-button { transition: none; } }

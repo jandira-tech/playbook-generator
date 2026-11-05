@@ -34,68 +34,42 @@ function Shell({
   );
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-8">
-      <header className="mb-8 flex items-start justify-between gap-4">
-        <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500 mb-1">
-            Contracts playbook
-          </div>
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-900">
-            From agreement → positions
-          </h1>
-          <p className="text-slate-600 mt-2 text-sm leading-relaxed max-w-xl">
-            Paste any agreement. The AI first elicits your side and context
-            (with alternatives you can customize), then drafts preferred /
-            fallback / avoid positions. You confirm before save.
-          </p>
+    <div className="playbook-theme">
+      <header className="app-header">
+        <div className="app-header-inner">
+          <div className="app-brand">ARTHUR<span>.</span>SOUZA<span>.</span>RODRIGUES <span>/</span> <b>PLAYBOOK</b></div>
+          {stage !== "intent" && stage !== "saved" && (
+            <button type="button" onClick={onReset} className="app-reset">Start over</button>
+          )}
         </div>
-        {stage !== "intent" && stage !== "saved" && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="text-xs text-slate-500 hover:text-slate-900 underline shrink-0 mt-1"
-          >
-            Start over
-          </button>
-        )}
       </header>
-
-      {stage !== "saved" && stage !== "error" && (
-        <nav className="flex flex-wrap gap-2 mb-6" aria-label="Progress">
-          {steps.map((s) => {
-            const sIdx = order.indexOf(s.id === "elicit" ? "elicit" : s.id);
-            const active =
-              s.id === stage ||
-              (stage === "processing" && s.id === "elicit") ||
-              (stage === "eliciting" && s.id === "elicit");
-            const done = sIdx < idx && s.id !== "review";
-            return (
-              <span
-                key={s.id}
-                className={
-                  "text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded border " +
-                  (active
-                    ? "bg-slate-900 text-white border-slate-900"
-                    : done
-                    ? "bg-white text-slate-700 border-slate-300"
-                    : "bg-transparent text-slate-400 border-slate-200")
-                }
-              >
-                {s.label}
-              </span>
-            );
-          })}
-        </nav>
-      )}
-
-      {children}
+      <main className="app-content">
+        <section className="app-hero">
+          <p className="app-eyebrow">/ Contracts playbook <span>·</span> Agreement → positions <span>·</span> Human confirms before save</p>
+          <h1>Paste any agreement. Leave with <mark>positions you can defend</mark>.</h1>
+          <p>The AI first elicits your side and context — with alternatives you can customize — then drafts preferred, fallback and avoid positions per clause. Nothing is saved until you confirm.</p>
+        </section>
+        {stage !== "saved" && stage !== "error" && (
+          <nav className="app-progress" aria-label="Progress">
+            {steps.map((s, i) => {
+              const sIdx = order.indexOf(s.id);
+              const active = s.id === stage || ((stage === "processing" || stage === "eliciting") && s.id === "elicit");
+              const done = sIdx < idx;
+              return <span key={s.id} className={active ? "is-active" : done ? "is-done" : ""} aria-current={active ? "step" : undefined} aria-label={s.label}>
+                <b>{String(i + 1).padStart(2, "0")}</b><span>{s.label.replace(/^\d\. /, "")}</span>
+              </span>;
+            })}
+          </nav>
+        )}
+        {children}
+      </main>
     </div>
   );
 }
 
 function Card({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={`bg-white border border-slate-200 shadow-sm rounded-lg p-6 sm:p-8 ${className}`}>
+    <div className={`demo-card bg-white border border-slate-200 shadow-sm rounded-lg p-6 sm:p-8 ${className}`}>
       {children}
     </div>
   );
@@ -117,7 +91,7 @@ function PrimaryButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className="bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded"
+      className="demo-button demo-button-primary bg-slate-900 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-semibold uppercase tracking-[0.14em] px-5 py-2.5 rounded"
     >
       {children}
     </button>
@@ -138,7 +112,7 @@ function GhostButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="border border-slate-300 hover:border-slate-500 text-slate-700 text-xs font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded disabled:opacity-40"
+      className="demo-button border border-slate-300 hover:border-slate-500 text-slate-700 text-xs font-semibold uppercase tracking-[0.14em] px-4 py-2.5 rounded disabled:opacity-40"
     >
       {children}
     </button>
@@ -222,8 +196,9 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={
-        "text-xs px-3 py-1.5 rounded-full border transition " +
+        "demo-chip text-xs px-3 py-1.5 rounded-full border transition " +
         (active
           ? "bg-slate-900 text-white border-slate-900"
           : "bg-white text-slate-700 border-slate-300 hover:border-slate-500")
