@@ -1,4 +1,5 @@
 /** @jsxImportSource https://esm.sh/react@18.2.0 */
+import { containsRedactionMarkers } from "../shared/extract_redaction.ts";
 import React, { useMemo, useState } from "https://esm.sh/react@18.2.0?deps=react@18.2.0";
 import { INTENT_LABEL, positionChoices, riskForPosition } from "../shared/catalog.ts";
 import { areLinked, moveRule, toggleLink } from "../shared/organize.ts";
@@ -157,6 +158,18 @@ function ReviewStep({
           priority, and <strong>Link</strong> related topics (e.g. arbitration ↔ forum).
         </p>
 
+        {session.redact_before_send && containsRedactionMarkers(JSON.stringify({
+          agreement_type: session.agreement_type,
+          party_vocabulary: session.party_vocabulary,
+          summary: session.summary,
+          ai_notes: session.ai_notes,
+          intent_suggestion_reason: session.intent_suggestion_reason,
+          rules: session.rules.map((rule) => effectiveRule(session, rule)),
+        })) && (
+          <p role="status" className="mb-3 border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+            Some redaction markers remain in the AI draft. The model may have changed or invented a marker; compare the draft with your document before saving or exporting. Unmatched markers are shown as returned, not guessed.
+          </p>
+        )}
         {(session.agreement_type || session.party_vocabulary) && (
           <div className="flex flex-wrap gap-2 mb-3">
             {session.agreement_type && (

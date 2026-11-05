@@ -3,7 +3,8 @@ import React, { useState } from "https://esm.sh/react@18.2.0?deps=react@18.2.0";
 import { createRoot } from "https://esm.sh/react-dom@18.2.0/client?deps=react@18.2.0,react-dom@18.2.0";
 import { applyElicitAnswers } from "../shared/catalog.ts";
 import { prepareElicitation } from "../shared/elicit_redaction.ts";
-import { type Redaction, redactSensitive, restoreRuleFields } from "../shared/redact.ts";
+import { type Redaction, redactSensitive } from "../shared/redact.ts";
+import { restoreExtractResponse } from "../shared/extract_redaction.ts";
 import {
   buildRecord,
   callElicitBrief,
@@ -159,10 +160,8 @@ function App() {
         text = out.redacted;
         redactions = out.redactions;
       }
-      const res = await callExtract(brief, text, filename);
-      const rules = redactions.length
-        ? res.rules.map((r) => restoreRuleFields(r, redactions))
-        : res.rules;
+      const res = restoreExtractResponse(await callExtract(brief, text, filename), redactions);
+      const rules = res.rules;
       const selections: Record<string, RuleSelection> = {};
       for (const r of rules) selections[r.id] = "selected";
       update({

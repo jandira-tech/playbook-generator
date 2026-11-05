@@ -52,3 +52,37 @@ Deno.test("demo persistence and model-call window", () => {
   now = 60_001;
   equal(limiter.take("b").ok, true);
 });
+
+Deno.test("extract output restores exact redaction placeholders locally in all displayed fields", async () => {
+  const { restoreExtractResponse } = await import("./extract_redaction.ts");
+  const redactions = redactSensitive("Email jane@example.com about the agreement.").redactions;
+  const response = {
+    agreement_type: "Agreement for [EMAIL_1]",
+    party_vocabulary: "[EMAIL_1] / recipient",
+    summary: "Summary for [EMAIL_1]",
+    ai_notes: "Note for [EMAIL_1]",
+    intent_suggestion: null,
+    intent_suggestion_reason: "Reason for [EMAIL_1]",
+    rules: [{ id: "one", topic: "[EMAIL_1]", preferred: "[EMAIL_1]", alternates: [{ rank: 1, text: "[EMAIL_1]", risk: "green" }], avoid: "[EMAIL_1]", risk: "green", sample_language: "[EMAIL_1]", escalate_when: "[EMAIL_1]", source_quote: "[EMAIL_1]", raise_mode: "either", confidence: 1, rationale: "[EMAIL_1]" }],
+  } as const;
+  const restored = restoreExtractResponse(response as unknown as import("./types.ts").ExtractResponse, redactions);
+  equal(restored.agreement_type, "Agreement for jane@example.com");
+  equal(restored.party_vocabulary, "jane@example.com / recipient");
+  equal(restored.summary, "Summary for jane@example.com");
+  equal(restored.ai_notes, "Note for jane@example.com");
+  equal(restored.intent_suggestion_reason, "Reason for jane@example.com");
+  equal(restored.rules[0].topic, "jane@example.com");
+  equal(restored.rules[0].preferred, "jane@example.com");
+  equal(restored.rules[0].alternates[0].text, "jane@example.com");
+  equal(restored.rules[0].source_quote, "jane@example.com");
+  equal(restored.rules[0].rationale, "jane@example.com");
+  equal(restored.rules[0].escalate_when, "jane@example.com");
+  equal(response.party_vocabulary, "[EMAIL_1] / recipient");
+});
+
+Deno.test("unresolved redaction markers are detected for review without guessing", async () => {
+  const { containsRedactionMarkers } = await import("./extract_redaction.ts");
+  equal(containsRedactionMarkers("PARTY_1 / PARTY_2"), true);
+  equal(containsRedactionMarkers("Contact [EMAIL_1]"), true);
+  equal(containsRedactionMarkers("Acme and Recipient"), false);
+});
