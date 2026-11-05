@@ -1,5 +1,7 @@
 # Playbook from Agreement
 
+[Open the demo](https://arthrod--cdf728ae-d937-11f1-a239-1607ee4eb77e.web.val.run/) · [Val Town project](https://www.val.town/x/arthrod/playbook-generator-jandira)
+
 A Val Town demo that turns an agreement into a structured contracts playbook: preferred positions, ordered alternatives, positions to avoid, risk, escalation guidance, and source quotations. A person reviews the draft and explicitly confirms before submitting. The model's output is a draft, not a substitute for legal review.
 
 Source: [arthrod/playbook-from-doc](https://www.val.town/x/arthrod/playbook-from-doc). See [DESIGN.md](DESIGN.md) for the design tokens extracted from the source UI.
