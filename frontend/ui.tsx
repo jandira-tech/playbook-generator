@@ -37,7 +37,7 @@ function Shell({
     <div className="playbook-theme">
       <header className="app-header">
         <div className="app-header-inner">
-          <div className="app-brand">ARTHUR<span>.</span>SOUZA<span>.</span>RODRIGUES <span>/</span> <b>PLAYBOOK</b></div>
+          <a className="app-brand" href="https://arthur.law/">ARTHUR<span>.</span>SOUZA<span>.</span>RODRIGUES <span>/</span> <b>PLAYBOOK</b></a>
           {stage !== "intent" && stage !== "saved" && (
             <button type="button" onClick={onReset} className="app-reset">Start over</button>
           )}
