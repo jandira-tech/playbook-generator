@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Playbook from Agreement</title>
+    <script src="https://cdn.twind.style" crossorigin></script>
+    <script src="https://esm.town/v/std/catch"></script>
+    <style>
+      :root { color-scheme: light; }
+      body {
+        font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        margin: 0;
+      }
+      /* Subtle paper gradient inspired by potion playbook flow */
+      .paper-bg {
+        background: linear-gradient(180deg, #f7f4ef 0%, #eef2f7 100%);
+        min-height: 100vh;
+      }
+    </style>
+  </head>
+  <body class="paper-bg text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/frontend/index.tsx"></script>
+  </body>
+</html>
