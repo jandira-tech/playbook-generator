@@ -132,10 +132,10 @@ function App() {
         agreement_type: elicitation.detected_agreement_type,
         party_vocabulary: elicitation.detected_parties,
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       update({
         stage: "error",
-        error_message: String(e?.message ?? e),
+        error_message: (e instanceof Error ? e.message : String(e)),
       });
     }
   }
@@ -176,10 +176,10 @@ function App() {
         intent_suggestion: res.intent_suggestion,
         intent_suggestion_reason: res.intent_suggestion_reason,
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       update({
         stage: "error",
-        error_message: String(e?.message ?? e),
+        error_message: (e instanceof Error ? e.message : String(e)),
       });
     }
   }

@@ -89,8 +89,8 @@ function CounterReviewScreen({
     try {
       const res = await callReviewCounter(rules, text, partyVocabulary);
       setReport(res);
-    } catch (e: any) {
-      setError(String(e?.message ?? e));
+    } catch (e: unknown) {
+      setError((e instanceof Error ? e.message : String(e)));
     } finally {
       setBusy(false);
     }
@@ -137,7 +137,7 @@ function CounterReviewScreen({
           value={text}
           // Clamp typed/pasted text to the same ceiling the file-attach path
           // enforces, so a huge paste can't slip past MAX_UPLOAD_CHARS.
-          onChange={(e: any) => setText(e.target.value.slice(0, MAX_UPLOAD_CHARS))}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setText(e.target.value.slice(0, MAX_UPLOAD_CHARS))}
           rows={10}
           placeholder="Paste the other side's agreement text here…"
           className="mt-1 w-full border border-slate-300 rounded px-3 py-2 text-sm font-mono leading-relaxed focus:border-slate-500 focus:outline-none"
@@ -150,7 +150,7 @@ function CounterReviewScreen({
               type="file"
               accept=".docx,.pdf,.txt,.md,.markdown,.rtf,.csv"
               className="hidden"
-              onChange={(e: any) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                 const f = e.target.files?.[0];
                 if (f) void readFile(f);
               }}

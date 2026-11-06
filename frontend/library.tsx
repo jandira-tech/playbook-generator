@@ -126,7 +126,7 @@ function LibraryList({ onOpen, token }: { onOpen: (id: number) => void; token: s
     setError(null);
     fetchPlaybooks(!hideVault, token)
       .then((r) => live && setRows(r))
-      .catch((e) => live && setError(String(e?.message ?? e)));
+      .catch((e) => live && setError((e instanceof Error ? e.message : String(e))));
     return () => {
       live = false;
     };
@@ -142,7 +142,7 @@ function LibraryList({ onOpen, token }: { onOpen: (id: number) => void; token: s
           <input
             type="checkbox"
             checked={hideVault}
-            onChange={(e: any) => setHideVault(e.target.checked)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setHideVault(e.target.checked)}
             aria-label="Hide private-vault playbooks"
             data-testid="library-hide-vault"
             className="h-4 w-4 accent-slate-900"
@@ -233,7 +233,7 @@ function PlaybookDetail({
     setError(null);
     fetchPlaybook(id, token)
       .then((r) => live && setRow(r))
-      .catch((e) => live && setError(String(e?.message ?? e)));
+      .catch((e) => live && setError((e instanceof Error ? e.message : String(e))));
     return () => {
       live = false;
     };
@@ -440,7 +440,7 @@ function VersionHistory({
     setError(null);
     fetchFamilyVersions(familyId, token)
       .then((v) => live && setVersions(v))
-      .catch((e) => live && setError(String(e?.message ?? e)));
+      .catch((e) => live && setError((e instanceof Error ? e.message : String(e))));
     return () => {
       live = false;
     };
