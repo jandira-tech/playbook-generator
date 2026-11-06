@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "https://esm.sh/react@18.2.0?deps=react@18.2.0";
 import { INTENT_LABEL } from "../shared/catalog.ts";
 import { relativeDate, summarizeDiff, versionLabel } from "../shared/library.ts";
-import { fetchFamilyVersions, fetchPlaybook, fetchPlaybooks, riskColor } from "./session.ts";
+import { fetchDemoPlaybook, fetchFamilyVersions, fetchPlaybook, fetchPlaybooks, riskColor } from "./session.ts";
 import { downloadDocx, downloadMarkdown, toMarkdown } from "./exporters.ts";
 import { copyText } from "./clipboard.ts";
 import { Card, ErrorBox, GhostButton, PrimaryButton } from "./ui.tsx";
@@ -59,8 +59,9 @@ function LibraryScreen({
             My playbooks
           </h1>
           <p className="text-slate-600 mt-2 text-sm leading-relaxed max-w-xl">
-            Every playbook you have saved, latest version first. Open one to read
-            it, export it, duplicate it into a new draft, or browse its history.
+            {mode === "demo"
+              ? "A sample playbook stored in this val’s SQLite database. Open it to read the positions. Playbooks you confirm are stored too, and are not listed here."
+              : "Every playbook you have saved, latest version first. Open one to read it, export it, duplicate it into a new draft, or browse its history."}
           </p>
         </div>
         <button
@@ -75,7 +76,9 @@ function LibraryScreen({
 
       {mode === "loading" && <p role="status">Checking library availability…</p>}
       {mode === "error" && <ErrorBox message="Could not check library availability. Close and reopen the library to retry." />}
-      {mode === "demo" && <Card><p>Demo mode does not store playbooks, so the library is unavailable. Export your draft from the saved screen.</p></Card>}
+      {mode === "demo" && (
+        <DemoLibrary onDuplicate={onDuplicate} onReviewCounter={onReviewCounter} />
+      )}
       {mode === "stored" && !token && <Card>
         <form onSubmit={(e) => { e.preventDefault(); if (enteredToken.trim()) { onTokenChange(enteredToken.trim()); setEnteredToken(""); } }}>
           <label htmlFor="library-token" className="block text-sm font-semibold mb-2">Admin access token</label>
@@ -208,9 +211,66 @@ function LibraryList({ onOpen, token }: { onOpen: (id: number) => void; token: s
 
 // ---------- Detail (read-only) ----------
 
+function DemoLibrary({
+  onDuplicate,
+  onReviewCounter,
+}: {
+  onDuplicate: (record: PlaybookRecord, familyId: string, version: number) => void;
+  onReviewCounter: (record: PlaybookRecord) => void;
+}) {
+  const [row, setRow] = useState<PlaybookRow | null>(null);
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let live = true;
+    fetchDemoPlaybook()
+      .then((next) => { if (live) setRow(next); })
+      .catch((e: unknown) => { if (live) setError(e instanceof Error ? e.message : String(e)); });
+    return () => { live = false; };
+  }, []);
+
+  if (error) return <ErrorBox message={error} />;
+  if (!row) return <p role="status">Loading the sample playbook…</p>;
+  if (open) {
+    return (
+      <PlaybookDetail
+        token=""
+        id={row.id}
+        provided={row}
+        onBack={() => setOpen(false)}
+        onDuplicate={onDuplicate}
+        onReviewCounter={onReviewCounter}
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setOpen(true)}
+      data-testid="demo-playbook-card"
+      className="w-full text-left"
+    >
+      <Card className="hover:border-slate-400 transition">
+        <div className="flex flex-wrap items-center gap-2">
+          <h3 className="font-semibold text-slate-900 text-base">{row.payload.name}</h3>
+          <span className="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
+            Sample
+          </span>
+        </div>
+        <p className="text-xs text-slate-500 mt-1">
+          {row.rule_count} rules · {row.contract_type ?? "playbook"} · stored in SQLite
+        </p>
+      </Card>
+    </button>
+  );
+}
+
 function PlaybookDetail({
   token,
   id,
+  provided,
   onBack,
   onHistory,
   onDuplicate,
@@ -218,26 +278,31 @@ function PlaybookDetail({
 }: {
   token: string;
   id: number;
+  provided?: PlaybookRow;
   onBack: () => void;
-  onHistory: (familyId: string, name: string) => void;
+  onHistory?: (familyId: string, name: string) => void;
   onDuplicate: (record: PlaybookRecord, familyId: string, version: number) => void;
   onReviewCounter: (record: PlaybookRecord) => void;
 }) {
-  const [row, setRow] = useState<PlaybookRow | null>(null);
+  const [row, setRow] = useState<PlaybookRow | null>(provided ?? null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (provided) {
+      setRow(provided);
+      return;
+    }
     let live = true;
     setRow(null);
     setError(null);
     fetchPlaybook(id, token)
       .then((r) => live && setRow(r))
-      .catch((e) => live && setError((e instanceof Error ? e.message : String(e))));
+      .catch((e: unknown) => live && setError(e instanceof Error ? e.message : String(e)));
     return () => {
       live = false;
     };
-  }, [id, token]);
+  }, [id, token, provided]);
 
   async function copyMarkdown(record: PlaybookRecord) {
     if (await copyText(toMarkdown(record))) {
@@ -310,9 +375,11 @@ function PlaybookDetail({
           <GhostButton onClick={() => copyMarkdown(record)}>
             {copied ? "Copied ✓" : "Copy Markdown"}
           </GhostButton>
-          <GhostButton onClick={() => onHistory(row.family_id, record.name)}>
-            History
-          </GhostButton>
+          {onHistory && (
+            <GhostButton onClick={() => onHistory(row.family_id, record.name)}>
+              History
+            </GhostButton>
+          )}
           <GhostButton onClick={() => onDuplicate(record, row.family_id, row.version)}>
             Duplicate &amp; edit
           </GhostButton>

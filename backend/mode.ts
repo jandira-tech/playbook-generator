@@ -1,8 +1,8 @@
-// Demo mode: without ADMIN_TOKEN nobody can read stored playbooks (backend/auth.ts), so
-// storing a visitor's submission would keep personal data no one may use. The val then
-// validates submissions and stores nothing. No SQLite / OpenAI imports: testable offline.
+// Admin reads: without ADMIN_TOKEN the library list of every stored playbook stays
+// closed (backend/auth.ts). Confirmed submissions are still written to SQLite.
+// The public sample is a separate route. No SQLite / OpenAI imports: testable offline.
 
-/** True when submissions should be stored: only when an admin can read them back. */
+/** True when an admin token is set, so the full library can be read back. */
 export function persistenceEnabled(getToken: () => string | undefined): boolean {
   return (getToken() ?? "").trim() !== "";
 }

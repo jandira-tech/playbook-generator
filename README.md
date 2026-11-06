@@ -18,9 +18,11 @@ The model uses the agreement's own party vocabulary; `our_side` accepts custom r
 
 ## Data and demo mode
 
-With `ADMIN_TOKEN` unset, the app runs in **demo mode**: submission is validated but nothing is saved in SQLite; the UI signals this. Drafts are still retained in browser `localStorage` and model requests still send text to Val Town's OpenAI integration. Clear browser site data to remove local drafts.
+Confirmed playbooks are stored in the val-scoped SQLite database (`playbooks_v2`), including on the public demo. The browser also keeps the in-progress draft in `localStorage`. Model requests send text to Val Town's OpenAI integration. Clear browser site data to remove the local draft; that does not delete the SQLite row.
 
-Setting a strong `ADMIN_TOKEN` enables persistence in the val-scoped SQLite database. Stored-record GET endpoints require `Authorization: Bearer <ADMIN_TOKEN>` and fail closed when no token is configured. The browser library asks for the token when persistence is enabled. It keeps the token only in page memory, sends it in the Authorization header for library reads, and lets you forget it; reloading clears it. In demo mode, the library explains that no records are stored. Submissions themselves are not authenticated. Do not treat this demo as a multi-user private document service.
+`GET /api/demo-playbook` returns one fictional sample, inserted once under the family id `demo-sample-nda`. The public library opens that sample and does not list other rows. A duplicate of the sample starts a new family, so a visitor cannot append a version onto the sample.
+
+With `ADMIN_TOKEN` unset, every other stored-record GET returns 503. Setting a strong `ADMIN_TOKEN` opens the full library. Those routes require `Authorization: Bearer <ADMIN_TOKEN>` and fail closed when the bearer does not match. The browser library asks for the token, keeps it only in page memory, and lets you forget it; reloading clears it. Submissions themselves are not authenticated. Do not treat this demo as a multi-user private document service.
 
 File binaries are parsed in the browser, but extracted text is sent to the server for AI processing. The optional redaction masks recognized patterns in document text before elicitation and extraction, restores matched placeholders for display, and is best effort: it can miss sensitive data. Brief fields and other inputs are separate from the redacted document. Counterparty review and help are separate model calls. Avoid using confidential documents unless your deployment and data handling are appropriate for them.
 
@@ -38,7 +40,7 @@ cd my-playbook
 vt push
 ```
 
-Alternatively, use `vt create` for a fresh val and copy the source into that checkout. **Check `vt status` before pushing**: `.vt/state.json` identifies the target val and is intentionally excluded from Git. Do not push a source clone without first changing the target; doing so would update the original. Configure `ADMIN_TOKEN` in the new val's environment only if persistence is wanted; never commit it. Each val has its own database, so cloning code does not copy saved playbooks.
+Alternatively, use `vt create` for a fresh val and copy the source into that checkout. **Check `vt status` before pushing**: `.vt/state.json` identifies the target val and is intentionally excluded from Git. Do not push a source clone without first changing the target; doing so would update the original. Configure `ADMIN_TOKEN` in the new val's environment only if you want the full library to be readable; never commit it. Confirmed playbooks are stored either way. Each val has its own database, so cloning code does not copy saved playbooks. The sample row is created on the first request to `/api/demo-playbook`.
 
 Run the offline checks with `deno task test`. They exercise redaction and elicitation restoration, file-type dispatch, quote verification, version selection, demo mode, rate-limit windows, and authenticated library request handling; they do not call a model or verify a deployed browser flow. Run `vt status` to inspect local changes and `vt push` to deploy the current checkout.
 
@@ -54,7 +56,8 @@ Run the offline checks with `deno task test`. They exercise redaction and elicit
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| GET | `/api/mode` | Whether persistence is disabled |
+| GET | `/api/mode` | Whether the full library is closed (`demo: true` when `ADMIN_TOKEN` is unset) |
+| GET | `/api/demo-playbook` | The sample playbook stored in SQLite. Public. |
 | POST | `/api/elicit-brief` | Suggest context from `brief` and `document_text` |
 | POST | `/api/extract` | Draft structured rules from `brief` and `document_text` |
 | POST | `/api/review-counter` | Compare `counterparty_text` with `rules` |

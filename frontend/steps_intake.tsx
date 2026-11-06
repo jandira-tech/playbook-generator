@@ -22,7 +22,7 @@ function IntentStep({
   const [intent, setIntent] = useState(brief.intent);
   const [focus, setFocus] = useState(brief.focus);
 
-  // Public demo (no ADMIN_TOKEN on the server): say plainly that nothing is stored.
+  // Public demo (no ADMIN_TOKEN): the full library is closed. Saves still go to SQLite.
   const [demo, setDemo] = useState(false);
   useEffect(() => {
     fetch("/api/mode")
@@ -36,7 +36,9 @@ function IntentStep({
       {demo && (
         <p className="mb-4 rounded border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-900">
           Public demo. Do not enter real names or confidential facts. What you type is sent to
-          OpenAI through Val Town to generate suggestions. Nothing is stored on this server.
+          OpenAI through Val Town to generate suggestions. A confirmed playbook is stored in
+          this val’s SQLite database. The library opens a sample playbook and does not list
+          other records.
         </p>
       )}
       <div className="flex items-start justify-between gap-3 mb-1">

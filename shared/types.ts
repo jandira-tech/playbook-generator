@@ -183,7 +183,7 @@ export interface SubmitResponse {
   playbook_id: number;
   family_id: string;
   version: number;
-  /** True when the val is a public demo and the playbook was validated but not stored. */
+  /** True when the full library is closed and the public page shows the sample only. */
   demo?: boolean;
 }
 

@@ -148,6 +148,13 @@ async function fetchPlaybooks(includeVault: boolean, token: string): Promise<Pla
   return json.playbooks;
 }
 
+async function fetchDemoPlaybook(): Promise<PlaybookRow> {
+  const r = await fetch("/api/demo-playbook");
+  if (!r.ok) throw new Error(`/api/demo-playbook ${r.status}: ${await r.text()}`);
+  const json = (await r.json()) as PlaybookDetailResponse;
+  return json.playbook;
+}
+
 async function fetchPlaybook(id: number, token: string): Promise<PlaybookRow> {
   const r = await fetch(`/api/playbooks/${id}`, { headers: { Authorization: `Bearer ${token}` } });
   if (!r.ok) throw new Error(`/api/playbooks/${id} ${r.status}: ${await r.text()}`);
@@ -264,6 +271,7 @@ export {
   callSubmit,
   effectiveRule,
   emptySession,
+  fetchDemoPlaybook,
   fetchFamilyVersions,
   fetchPlaybook,
   fetchPlaybooks,

@@ -18,6 +18,7 @@ import {
 import { Card, ErrorBox, GhostButton, PrimaryButton, Shell } from "./ui.tsx";
 import { DocumentStep, ElicitStep, IntentStep, ProcessingStep } from "./steps_intake.tsx";
 import { ConfirmStep, ReviewStep, SavedStep } from "./steps_review.tsx";
+import { DEMO_FAMILY_ID } from "../shared/demo_playbook.ts";
 import { LibraryScreen } from "./library.tsx";
 import { CounterReviewScreen } from "./counter.tsx";
 import type {
@@ -94,7 +95,8 @@ function App() {
   // Duplicate a saved playbook into a fresh, editable session (review stage),
   // threading family_id so a later Save continues that lineage as a new version.
   function onDuplicate(record: PlaybookRecord, familyId: string, version: number) {
-    const next = sessionFromRecord(record, familyId, version);
+    const lineage = familyId === DEMO_FAMILY_ID ? null : familyId;
+    const next = sessionFromRecord(record, lineage, lineage ? version : null);
     setSession(next);
     persist(next);
     setLibraryOpen(false);

@@ -1,11 +1,13 @@
 import { Hono } from "npm:hono";
 import { readFile, serveFile } from "https://esm.town/v/std/utils/index.ts";
 import { getPlaybook, listFamilyVersions, listPlaybooks, savePlaybook } from "./db.ts";
+import { ensureDemoPlaybook } from "./seed.ts";
 import { diffRules } from "../shared/versioning.ts";
 import { elicitBrief, explain, extractPlaybook, reviewCounter } from "./llm.ts";
 import { assertPlaybookRecord, isSafeAssetPath, truncateDoc } from "../shared/catalog.ts";
 import { readJsonBody } from "./http_util.ts";
 import { protectReads } from "./auth.ts";
+import { lineageForSubmit } from "../shared/demo_playbook.ts";
 import { persistenceEnabled } from "./mode.ts";
 import { createLimiter, limitModelCalls } from "./ratelimit.ts";
 import type {
@@ -226,27 +228,34 @@ app.post("/api/review-counter", async (c) => {
   return c.json(response);
 });
 
-// The page shows a "public demo, nothing stored" banner when this says demo.
+// `demo` means the admin library is not configured. Confirmed playbooks are
+// still written to SQLite. The public sample is served from /api/demo-playbook.
 app.get("/api/mode", (c) => c.json({ demo: !persistenceEnabled(() => Deno.env.get("ADMIN_TOKEN")) }));
+
+app.get("/api/demo-playbook", async (c) => {
+  const row = await ensureDemoPlaybook();
+  return c.json({ playbook: row });
+});
 
 app.post("/api/submit", async (c) => {
   const body = await readJsonBody<SubmitRequest>(c);
   if (body === null) return c.json({ error: "invalid JSON body" }, 400);
   try {
     assertPlaybookRecord(body?.playbook);
-  } catch (e) {
-    return c.json({ error: (e as Error).message }, 400);
+  } catch (e: unknown) {
+    return c.json({ error: (e instanceof Error ? e.message : String(e)) }, 400);
   }
   const playbook = {
     ...body.playbook,
     source_excerpt: truncateDoc(body.playbook.source_excerpt || "", 8000),
   };
-  if (!persistenceEnabled(() => Deno.env.get("ADMIN_TOKEN"))) {
-    // Public demo: validated, not stored (backend/mode.ts).
-    const demo: SubmitResponse = { ok: true, demo: true, playbook_id: 0, family_id: "demo", version: 1 };
-    return c.json(demo);
+  let familyId: string | undefined;
+  try {
+    familyId = lineageForSubmit(body.family_id);
+  } catch (e: unknown) {
+    return c.json({ error: (e instanceof Error ? e.message : String(e)) }, 400);
   }
-  const saved = await savePlaybook(playbook, body.family_id);
+  const saved = await savePlaybook(playbook, familyId);
   const response: SubmitResponse = {
     ok: true,
     playbook_id: saved.id,

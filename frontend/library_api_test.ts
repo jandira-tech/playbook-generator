@@ -1,5 +1,25 @@
 import { fetchFamilyVersions, fetchPlaybook, fetchPlaybooks } from "./session.ts";
 
+Deno.test("the sample playbook is fetched without a bearer token", async () => {
+  const previous = globalThis.fetch;
+  let authorization: string | null = "unset";
+  let url = "";
+  globalThis.fetch = ((input: string | URL | Request, init?: RequestInit) => {
+    url = String(input);
+    authorization = new Headers(init?.headers).get("Authorization");
+    return Promise.resolve(Response.json({ playbook: { id: 1, payload: { name: "Sample mutual NDA" } } }));
+  }) as typeof fetch;
+  try {
+    const { fetchDemoPlaybook } = await import("./session.ts");
+    const row = await fetchDemoPlaybook();
+    if (url !== "/api/demo-playbook" || authorization !== null || row.id !== 1) {
+      throw new Error("sample playbook request was not public");
+    }
+  } finally {
+    globalThis.fetch = previous;
+  }
+});
+
 Deno.test("all library reads send the memory-only bearer token", async () => {
   const previous = globalThis.fetch;
   const requests: Array<{ url: string; authorization: string | null }> = [];
